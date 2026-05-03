@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduShare India - Student Community</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .material-card:hover { transform: translateY(-4px); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="graduation-cap" class="text-indigo-600 w-8 h-8"></i>
+                <span class="font-bold text-xl tracking-tight">EduShare <span class="text-indigo-600">India</span></span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-slate-600">
+                <a href="#" class="hover:text-indigo-600">Library</a>
+                <a href="#" class="hover:text-indigo-600">Request Box</a>
+                <a href="#" class="hover:text-indigo-600">About</a>
+            </div>
+            <button onclick="openModal()" class="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-indigo-700 transition">
+                Share Notes
+            </button>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="py-16 px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-slate-900">Engineering Resource Hub</h1>
+        <p class="text-slate-500 max-w-2xl mx-auto text-lg mb-10">
+            A student-run repository for textbooks, hand-written notes, and previous year papers.
+        </p>
+        
+        <!-- Search Bar -->
+        <div class="max-w-xl mx-auto relative group">
+            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition"></i>
+            <input 
+                id="search-input"
+                type="text" 
+                placeholder="Search by subject or name (e.g. Maths, Physics...)" 
+                class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-slate-200 shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition"
+                oninput="filterMaterials()"
+            >
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="max-w-6xl mx-auto px-4 pb-20">
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button id="filter-all" onclick="setFilter('All')" class="filter-btn bg-slate-900 text-white px-6 py-2 rounded-xl text-sm font-semibold border border-slate-900 transition">All</button>
+            <button id="filter-textbook" onclick="setFilter('Textbook')" class="filter-btn bg-white text-slate-600 px-6 py-2 rounded-xl text-sm font-semibold border border-slate-200 hover:bg-slate-50 transition">Textbooks</button>
+            <button id="filter-notes" onclick="setFilter('Notes')" class="filter-btn bg-white text-slate-600 px-6 py-2 rounded-xl text-sm font-semibold border border-slate-200 hover:bg-slate-50 transition">Notes</button>
+            <button id="filter-paper" onclick="setFilter('Paper')" class="filter-btn bg-white text-slate-600 px-6 py-2 rounded-xl text-sm font-semibold border border-slate-200 hover:bg-slate-50 transition">Papers</button>
+        </div>
+
+        <!-- Materials Grid -->
+        <div id="materials-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards injected by JS -->
+        </div>
+    </main>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x"></i>
+            </button>
+            <h2 class="text-2xl font-bold mb-6">Share a Resource</h2>
+            <form id="upload-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Title</label>
+                    <input name="title" required type="text" placeholder="e.g. SEM-2 Maths Notes" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Subject</label>
+                    <input name="subject" required type="text" placeholder="e.g. Mathematics" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Category</label>
+                    <select name="category" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option value="Textbook">Textbook</option>
+                        <option value="Notes">Notes</option>
+                        <option value="Paper">Question Paper</option>
+                    </select>
+                </div>
+                <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:bg-slate-50 transition">
+                    <i data-lucide="upload-cloud" class="mx-auto w-8 h-8 text-slate-300 mb-2"></i>
+                    <span class="text-sm text-slate-400">Choose PDF or Doc</span>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100 mt-4 transition active:scale-95">
+                    Post to Library
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Simple Footer -->
+    <footer class="bg-white border-t border-slate-200 py-10 text-center">
+        <p class="text-slate-400 text-sm">© 2026 EduShare India Community</p>
+        <p class="text-slate-300 text-xs mt-2">Built for Indian Engineering Students</p>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // Initial Sample Data
+        let materials = [
+            { id: 1, title: "Engineering Physics Vol 1", type: "Textbook", subject: "Physics", views: "1.2k" },
+            { id: 2, title: "Python Hand-written Notes", type: "Notes", subject: "Computer Science", views: "850" },
+            { id: 3, title: "SEM-3 Maths Papers (2023)", type: "Paper", subject: "Mathematics", views: "2.1k" },
+            { id: 4, title: "Data Structures Basics", type: "Notes", subject: "IT", views: "430" },
+            { id: 5, title: "Calculus by Howard Anton", type: "Textbook", subject: "Mathematics", views: "900" },
+        ];
+
+        let currentFilter = 'All';
+
+        function renderMaterials(list) {
+            const grid = document.getElementById('materials-grid');
+            grid.innerHTML = '';
+            
+            list.forEach(m => {
+                const badgeColor = m.type === 'Textbook' ? 'bg-indigo-100 text-indigo-700' : 
+                                   m.type === 'Notes' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700';
+                                   
+                grid.innerHTML += `
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 hover:shadow-xl material-card transition-all flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeColor}">${m.type}</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-bold">${m.views} views</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-1">${m.title}</h3>
+                            <p class="text-sm font-medium text-slate-500">${m.subject}</p>
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-slate-50 flex justify-between items-center">
+                            <span class="text-xs text-slate-400 font-semibold uppercase">PDF</span>
+                            <button onclick="alert('Starting download for: ' + '${m.title}')" class="bg-slate-50 p-2.5 rounded-xl hover:bg-slate-900 hover:text-white transition group border border-slate-100">
+                                <i data-lucide="download" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Re-initialize icons
+            lucide.createIcons();
+        }
+
+        function filterMaterials() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = materials.filter(m => {
+                const matchesSearch = m.title.toLowerCase().includes(query) || m.subject.toLowerCase().includes(query);
+                const matchesFilter = currentFilter === 'All' || m.type === currentFilter;
+                return matchesSearch && matchesFilter;
+            });
+            renderMaterials(filtered);
+        }
+
+        function setFilter(val) {
+            currentFilter = val;
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                const btnText = btn.innerText.replace('s', ''); // Handle plural 'Papers' vs 'Paper'
+                if (val === 'All' && btn.id === 'filter-all') {
+                    btn.className = 'filter-btn bg-slate-900 text-white px-6 py-2 rounded-xl text-sm font-semibold border border-slate-900 transition';
+                } else if (btn.id === 'filter-' + val.toLowerCase()) {
+                    btn.className = 'filter-btn bg-slate-900 text-white px-6 py-2 rounded-xl text-sm font-semibold border border-slate-900 transition';
+                } else {
+                    btn.className = 'filter-btn bg-white text-slate-600 px-6 py-2 rounded-xl text-sm font-semibold border border-slate-200 hover:bg-slate-50 transition';
+                }
+            });
+            filterMaterials();
+        }
+
+        function openModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('upload-modal').classList.add('hidden'); }
+
+        document.getElementById('upload-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newItem = {
+                id: Date.now(),
+                title: formData.get('title'),
+                subject: formData.get('subject'),
+                type: formData.get('category'),
+                views: "0"
+            };
+            materials.unshift(newItem);
+            renderMaterials(materials);
+            closeModal();
+            e.target.reset();
+        });
+
+        // Initialize
+        renderMaterials(materials);
+        lucide.createIcons();
+    </script>
+</body>
+</html>
